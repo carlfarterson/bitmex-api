@@ -22,59 +22,56 @@ class Bitmex:
             self.url = 'https://bitmex.com'
 
 
-    def trade(self, symbol='XBTUSD'):
-        return self.run(request='GET', action='trade', symbol=symbol)
+    # def trade(self, symbol='XBTUSD'):
+    def trade(self, **param):
+        return self.run(request='GET', action='trade', param)
 
 
     def run(self, request='GET', action='trade', **param):
-
-        path = self.create_path(action, param)
-        self.update_headers(request, path)
-        response = self.send_request(path)
+        path = self._create_path(action, param)
+        self._update_headers(request, path)
+        response = self._send_request(path)
         return response
 
-    def create_path(action, **param):
+
+    def _create_path(self, action, **param):
         path = self.path + action
         if param:
             path += '?' + urllib.parse.urlencode(param)
         return path
 
 
-    def update_headers(self, request, path):
+    def _update_headers(self, request, path):
         ''' Update the data included in the header of our API call. '''
-        self.update_expiration()
-        msg = request + path + self.headers['api-expires']
-        signature = hmac.new(bytes(self.api_secret, 'utf8'), bytes(message, 'utf8'), digestmod=sha256).hexdigest()
-        self.headers['api-signature'] = signature
+        self._update_expiration()
+        self._update_signature(request, path)
 
-
-    def update_expiration(self):
+    def _update_expiration(self):
         ''' Timestamp after which request is invalid to prevent replay attacks. '''
         end_timestamp = (datetime.utcnow() + timedelta(seconds=15)).timestamp()
         self.headers['api-expires'] = str(int(end_timestamp))
 
 
-    def send_request(self, path):
+    def _update_signature(self, request, path):
+        msg = request + path + self.headers['api-expires']
+        self.headers['api-signature'] = hmac.new(bytes(self.api_secret, 'utf8'),
+                                                 bytes(message, 'utf8'),
+                                                 digestmod=sha256).hexdigest()
+
+
+    def _send_request(self, path):
         response = requests.get(self.url + path, headers=self.headers).json()
         return response
 
+        # query = {'symbol': 'XBTUSD',
+        #          'startTime': (datetime.utcnow() - timedelta(seconds=30)).isoformat(timespec='seconds')}
 
 
 
 
-# query = {'symbol': 'XBTUSD',
-#          'startTime': (datetime.utcnow() - timedelta(seconds=30)).isoformat(timespec='seconds')}
 
 
 
 path = '/api/v1/trade?'+ query
 msg = 'GET' + path + expires
 url = 'https://testnet.bitmex.com' + path
-
-
-
-api = {
-    'api-expires': expires,
-    'api-key': ID_test,
-    'api-signature': signature
-}
