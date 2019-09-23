@@ -22,13 +22,12 @@ class Bitmex:
             self.url = 'https://bitmex.com'
 
 
-    # def trade(self, symbol='XBTUSD'):
     def trade(self, **param):
-        return self.run(request='GET', action='trade', param)
+        return self.run(request='GET', action='trade', **param)
 
 
     def run(self, request='GET', action='trade', **param):
-        path = self._create_path(action, param)
+        path = self._create_path(action, **param)
         self._update_headers(request, path)
         response = self._send_request(path)
         return response
@@ -46,6 +45,7 @@ class Bitmex:
         self._update_expiration()
         self._update_signature(request, path)
 
+
     def _update_expiration(self):
         ''' Timestamp after which request is invalid to prevent replay attacks. '''
         end_timestamp = (datetime.utcnow() + timedelta(seconds=15)).timestamp()
@@ -55,7 +55,7 @@ class Bitmex:
     def _update_signature(self, request, path):
         msg = request + path + self.headers['api-expires']
         self.headers['api-signature'] = hmac.new(bytes(self.api_secret, 'utf8'),
-                                                 bytes(message, 'utf8'),
+                                                 bytes(msg, 'utf8'),
                                                  digestmod=sha256).hexdigest()
 
 
@@ -67,11 +67,5 @@ class Bitmex:
         #          'startTime': (datetime.utcnow() - timedelta(seconds=30)).isoformat(timespec='seconds')}
 
 
-
-
-
-
-
-path = '/api/v1/trade?'+ query
-msg = 'GET' + path + expires
-url = 'https://testnet.bitmex.com' + path
+b = Bitmex(api_key=api_key_test, api_secret=api_secret_test)
+b.trade(symbol='XBTUSD', startTime=(datetime.utcnow() - timedelta(seconds=10)).isoformat(timespec='seconds'))
