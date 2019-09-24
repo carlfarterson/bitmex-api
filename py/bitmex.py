@@ -23,10 +23,15 @@ class Bitmex:
 
 
     def trade(self, **param):
-        return self.run(request='GET', action='trade', **param)
+        # b.trade(symbol='XBTUSD', startTime=(datetime.utcnow() - timedelta(seconds=10)).isoformat(timespec='seconds'))
+        return self.run(action='trade', **param)
 
 
-    def run(self, request='GET', action='trade', **param):
+    def order(self, **param):
+        return self.run(action='order', **param)
+
+
+    def run(self, action, request='GET', **param):
         path = self._create_path(action, **param)
         self._update_headers(request, path)
         response = self._send_request(path)
@@ -61,11 +66,12 @@ class Bitmex:
 
     def _send_request(self, path):
         response = requests.get(self.url + path, headers=self.headers).json()
+        # response = requests.get(self.url + 'order', headers=self.headers).json()
         return response
-
-        # query = {'symbol': 'XBTUSD',
-        #          'startTime': (datetime.utcnow() - timedelta(seconds=30)).isoformat(timespec='seconds')}
 
 
 b = Bitmex(api_key=api_key_test, api_secret=api_secret_test)
-b.trade(symbol='XBTUSD', startTime=(datetime.utcnow() - timedelta(seconds=10)).isoformat(timespec='seconds'))
+b.order()
+
+
+b.order(request='POST', symbol='XBTUSD', ordType='Market', orderQty=1)
