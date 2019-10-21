@@ -1,3 +1,4 @@
+import time
 import urllib
 import json
 import hmac
@@ -33,8 +34,8 @@ class Auth:
 
     def _update_expiration(self):
         ''' Timestamp after which request is invalid to prevent replay attacks. '''
-        end_timestamp = (datetime.utcnow() + timedelta(seconds=15)).timestamp()
-        self.headers['api-expires'] = str(int(end_timestamp))
+        expires = str(int(round(time.time()) + 5))   # 5 second window to execute trade
+        self.headers['api-expires'] = expires
 
     def _update_signature(self, method, path):
         msg = method + path + self.headers['api-expires']
