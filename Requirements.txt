@@ -62,7 +62,7 @@ lazr.restfulclient==0.14.2
 lazr.uri==1.0.3
 louis==3.8.0
 lru-dict==1.1.6
-lxml==4.3.3
+lxml==4.6.2
 macaroonbakery==1.2.1
 Mako==1.0.7
 MarkupSafe==1.1.0
